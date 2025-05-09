@@ -28,6 +28,10 @@ jobs:
         id: tag
         run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
 
+      - name: Set release date
+        id: date
+        run: echo "RELEASE_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
       - name: Configure PHP environment
         uses: shivammathur/setup-php@v2
         with:
@@ -39,7 +43,10 @@ jobs:
         run: APP_ENV=prod composer install --no-dev --optimize-autoloader
 
       - name: Create release artifact
-        run: zip -r ${{ env.TAG }}.zip . ${{ env.EXCLUDE_PATHS }}
+        run: |
+          ZIP_NAME="${{ env.RELEASE_DATE }}_${{ env.TAG }}.zip"
+          zip -r "$ZIP_NAME" . ${{ env.EXCLUDE_PATHS }}
+          echo "ARTIFACT=$ZIP_NAME" >> $GITHUB_ENV
 
       - name: Publish GitHub release
         id: create_release
@@ -48,7 +55,7 @@ jobs:
           tag_name: ${{ env.TAG }}
           draft: false
           prerelease: false
-          files: ${{ env.TAG }}.zip
+          files: ${{ env.ARTIFACT }}
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
