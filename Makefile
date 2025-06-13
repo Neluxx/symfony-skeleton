@@ -3,6 +3,7 @@
 
 # -------- Configuration --------
 SYMFONY = bin/console
+DDEVPHP = ddev exec php
 COMPOSER = ddev composer
 PHPUNIT = vendor/bin/phpunit
 PHPSTAN = vendor/bin/phpstan
@@ -15,6 +16,7 @@ help:
 	@echo "  app-setup    — Set up application"
 	@echo "  git-update   — Update the git project"
 	@echo "  update-dev   — Update dev environment"
+	@echo "  full-test    — Run tests and linting"
 	@echo ""
 	@echo "Composer:"
 	@echo "  install      — Install dependencies"
@@ -45,7 +47,6 @@ app-setup:
 	$(MAKE) selfupdate
 	$(MAKE) install
 	$(MAKE) db-reset
-	$(MAKE) migrate
 	$(MAKE) test
 
 .PHONY: git-update
@@ -59,6 +60,12 @@ update-dev:
 	$(MAKE) install
 	$(MAKE) migrate
 	$(MAKE) test
+
+.PHONY: full-test
+full-test:
+	$(MAKE) test
+	$(MAKE) stan
+	$(MAKE) cs-fix
 
 # -------- Composer --------
 .PHONY: install
@@ -77,45 +84,48 @@ selfupdate:
 # -------- Database --------
 .PHONY: db-create
 db-create:
-	$(SYMFONY) doctrine:database:create --if-not-exists
+	$(DDEVPHP) $(SYMFONY) doctrine:database:create --env=dev --if-not-exists
 
 .PHONY: db-drop
 db-drop:
-	$(SYMFONY) doctrine:database:drop --if-exists
+	$(DDEVPHP) $(SYMFONY) doctrine:database:drop --env=dev --if-exists --force
 
 .PHONY: db-reset
 db-reset:
 	$(MAKE) db-drop
 	$(MAKE) db-create
+	$(MAKE) migrate
 
 # -------- Migrations --------
 .PHONY: migrate
 migrate:
-	$(SYMFONY) doctrine:migrations:migrate
+	$(DDEVPHP) $(SYMFONY) doctrine:migrations:migrate --env=dev --no-interaction
 
 .PHONY: rollback
 rollback:
-	$(SYMFONY) doctrine:migrations:migrate prev
+	$(DDEVPHP) $(SYMFONY) doctrine:migrations:migrate prev --env=dev --no-interaction
 
 .PHONY: reset
 reset:
-	$(SYMFONY) doctrine:migrations:migrate 0
+	$(DDEVPHP) $(SYMFONY) doctrine:migrations:migrate 0 --env=dev --no-interaction
 
 # -------- Testing --------
 .PHONY: test
 test:
-	$(PHPUNIT) --colors=always
+	$(DDEVPHP) $(SYMFONY) doctrine:schema:create --env=test --no-interaction
+	$(DDEVPHP) $(SYMFONY) doctrine:fixtures:load --env=test --no-interaction
+	$(DDEVPHP) $(PHPUNIT) --colors=always
 
 .PHONY: stan
 stan:
-	$(PHPSTAN) analyse src
+	$(DDEVPHP) $(PHPSTAN) analyse src
 
 .PHONY: cs-fix
 cs-fix:
-	$(CSFIXER) fix src --using-cache=no
+	$(DDEVPHP) $(CSFIXER) fix src --using-cache=no
 
 # -------- Cache --------
 .PHONY: clear-cache
 clear-cache:
-	$(SYMFONY) cache:clear
-	$(SYMFONY) cache:warmup
+	$(DDEVPHP) $(SYMFONY) cache:clear --env=dev
+	$(DDEVPHP) $(SYMFONY) cache:warmup --env=dev
