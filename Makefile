@@ -112,6 +112,7 @@ reset:
 # -------- Testing --------
 .PHONY: test
 test:
+	$(DDEVPHP) $(SYMFONY) doctrine:schema:drop --env=test --force
 	$(DDEVPHP) $(SYMFONY) doctrine:schema:create --env=test --no-interaction
 	$(DDEVPHP) $(SYMFONY) doctrine:fixtures:load --env=test --no-interaction
 	$(DDEVPHP) $(PHPUNIT) --colors=always
