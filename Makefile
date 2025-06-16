@@ -33,6 +33,7 @@ help:
 	@echo "  migrate      — Migrate new migrations"
 	@echo "  rollback     — Rollback last migration"
 	@echo "  reset        — Reset all migrations"
+	@echo "  diff         — Generate migration from diff"
 	@echo ""
 	@echo "Testing:"
 	@echo "  test         — Execute tests"
@@ -113,6 +114,10 @@ rollback:
 .PHONY: reset
 reset:
 	$(DDEVPHP) $(SYMFONY) doctrine:migrations:migrate 0 --env=dev --no-interaction
+
+.PHONY: diff
+diff:
+	$(DDEVPHP) $(SYMFONY) doctrine:migration:diff
 
 # -------- Testing --------
 .PHONY: test
