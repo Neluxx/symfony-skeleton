@@ -22,6 +22,7 @@ help:
 	@echo "  install      — Install dependencies"
 	@echo "  update       — Update dependencies"
 	@echo "  selfupdate   — Self-update Composer"
+	@echo "  recipes      — Update symfony recipes"
 	@echo ""
 	@echo "Database:"
 	@echo "  db-create    — Create local database"
@@ -80,6 +81,10 @@ update:
 .PHONY: selfupdate
 selfupdate:
 	$(COMPOSER) selfupdate --2
+
+.PHONY: recipes
+recipes:
+	$(COMPOSER) recipes:update
 
 # -------- Database --------
 .PHONY: db-create
