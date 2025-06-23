@@ -133,7 +133,7 @@ stan:
 
 .PHONY: cs-fix
 cs-fix:
-	$(DDEVPHP) $(CSFIXER) fix src --using-cache=no
+	$(DDEVPHP) $(CSFIXER) fix --using-cache=no
 
 # -------- Cache --------
 .PHONY: clear-cache
