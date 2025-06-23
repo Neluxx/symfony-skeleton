@@ -129,7 +129,7 @@ test:
 
 .PHONY: stan
 stan:
-	$(DDEVPHP) $(PHPSTAN) analyse src
+	$(DDEVPHP) $(PHPSTAN) analyse
 
 .PHONY: cs-fix
 cs-fix:
